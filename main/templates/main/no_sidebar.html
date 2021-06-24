@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Main -->
+<section id="main">
+	<div class="container">
+		<div id="content">
+
+			<!-- Post -->
+			<article class="box post">
+				<header>
+					<h2>Behold! This is the <strong>no sidebar</strong> layout<br />
+						with no sidebar at all!</h2>
+				</header>
+				<span class="image featured"><img src="{% static 'images/pic04.jpg' %}" alt="" /></span>
+				<h3>And yeah, that's basically it</h3>
+				<p>내용1</p>
+				<p>내용2</p>
+				<p>내용3</p>
+				<h3>Accumsan lorem ipsum veroeros</h3>
+				<p>내용4</p>
+				<p>내용5</p>
+				<h3>Ligula suspcipit fusce veroeros</h3>
+				<p>내용6.</p>
+				<p>내용7</p>
+			</article>
+
+		</div>
+	</div>
+</section>
+</body>
+{% endblock %}
