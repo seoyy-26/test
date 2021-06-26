@@ -23,7 +23,7 @@ def showquestion(requesst):
     return render(requesst, 'question/question.html', context)
 
 def question_detail(request, question_id):
-    question = get_object_or_404(Question, pk=id)
+    question = get_object_or_404(Question, pk=question_id)
     context = {'question': question}
     return render(request, 'question/question_detail.html', context)
 
@@ -37,7 +37,7 @@ def question_update(request, id):
     update_question.save()
     return redirect('question:question_detail', update_question.id)
 
-def question_create(request, id):
+def question_create(request):
     new_question=Question()
     new_question.title = request.POST['title']
     new_question.category = request.POST['category']
@@ -51,7 +51,7 @@ def question_create(request, id):
 @login_required(login_url='common:login')
 def answer_create(request, question_id):
    
-    question = get_object_or_404(Question, pk=id)
+    question = get_object_or_404(Question, pk=question_id)
     if request.method == "POST":
         form = AnswerForm(request.POST)
         if form.is_valid():
@@ -60,7 +60,7 @@ def answer_create(request, question_id):
             answer.create_date = timezone.now()
             answer.question = question
             answer.save()
-            return redirect('question:detail', id=id)
+            return redirect('question:detail', question_id=question.id)
     else:
         form = AnswerForm()
     context = {'question': question, 'form': form}
@@ -87,10 +87,10 @@ def question_new(request):
 @login_required(login_url='common:login')
 def question_edit(request, question_id):
     
-    question = get_object_or_404(Question, pk=id)
+    question = get_object_or_404(Question, pk=question_id)
     if request.user != question.writer:
         messages.error(request, '수정권한이 없습니다')
-        return redirect('question:detail', id=id)
+        return redirect('question:detail', question_id=question.id)
 
     if request.method == "POST":
         form = QuestionForm(request.POST, instance=question)
@@ -99,7 +99,7 @@ def question_edit(request, question_id):
             question.writer = request.user
             question.modify_date = timezone.now()  # 수정일시 저장
             question.save()
-            return redirect('question:detail', id=id)
+            return redirect('question:detail', question_id=question_id)
     else:
         form = QuestionForm(instance=question)
     context = {'form': form}
@@ -109,21 +109,21 @@ def question_edit(request, question_id):
 @login_required(login_url='common:login')
 def question_delete(request, question_id):
     
-    question = get_object_or_404(Question, pk=id)
+    question = get_object_or_404(Question, pk=question_id)
     if request.user != question.writer:
         messages.error(request, '삭제권한이 없습니다')
-        return redirect('question:detail', id=id)
+        return redirect('question:detail', question_id=question.id)
     question.delete()
     return redirect('question:showquestion')
 
 
 @login_required(login_url='common:login')
-def answer_modify(request, answer_id):
+def answer_edit(request, answer_id):
     
-    answer = get_object_or_404(Answer, pk=id)
+    answer = get_object_or_404(Answer,  pk=answer_id)
     if request.user != answer.writer:
         messages.error(request, '수정권한이 없습니다')
-        return redirect('question:detail', id=id)
+        return redirect('question:detail', question_id=answer_id)
 
     if request.method == "POST":
         form = AnswerForm(request.POST, instance=answer)
@@ -132,7 +132,7 @@ def answer_modify(request, answer_id):
             answer.writer = request.user
             answer.modify_date = timezone.now()
             answer.save()
-            return redirect('question:detail', id=id)
+            return redirect('question:detail', question_id=answer_id)
     else:
         form = AnswerForm(instance=answer)
     context = {'answer': answer, 'form': form}
@@ -142,18 +142,18 @@ def answer_modify(request, answer_id):
 @login_required(login_url='common:login')
 def answer_delete(request, answer_id):
     
-    answer = get_object_or_404(Answer, pk=id)
+    answer = get_object_or_404(Answer, pk=answer_id)
     if request.user != answer.writer:
         messages.error(request, '삭제권한이 없습니다')
     else:
         answer.delete()
-    return redirect('question:detail', id=id)
+    return redirect('question:detail', question_id=answer_id)
 
 
 @login_required(login_url='common:login')
 def comment_create_question(request, question_id):
     
-    question = get_object_or_404(Question, pk=id)
+    question = get_object_or_404(Question, pk=question_id)
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -162,7 +162,7 @@ def comment_create_question(request, question_id):
             comment.create_date = timezone.now()
             comment.question = question
             comment.save()
-            return redirect('question:detail', id=id)
+            return redirect('question:detail', question_id=question.id)
     else:
         form = CommentForm()
     context = {'form': form}
@@ -170,12 +170,12 @@ def comment_create_question(request, question_id):
 
 
 @login_required(login_url='common:login')
-def comment_modify_question(request, comment_id):
+def comment_edit_question(request, comment_id):
    
-    comment = get_object_or_404(Comment, pk=id)
+    comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.writer:
         messages.error(request, '댓글수정권한이 없습니다')
-        return redirect('question:detail', id=id)
+        return redirect('question:detail', question_id=comment_id)
 
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
@@ -184,7 +184,7 @@ def comment_modify_question(request, comment_id):
             comment.writer = request.user
             comment.modify_date = timezone.now()
             comment.save()
-            return redirect('question:detail', id=id)
+            return redirect('question:detail', question_id=comment_id)
     else:
         form = CommentForm(instance=comment)
     context = {'form': form}
@@ -194,19 +194,19 @@ def comment_modify_question(request, comment_id):
 @login_required(login_url='common:login')
 def comment_delete_question(request, comment_id):
     
-    comment = get_object_or_404(Comment, pk=id)
+    comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.writer:
         messages.error(request, '댓글삭제권한이 없습니다')
-        return redirect('question:detail', id=id)
+        return redirect('question:detail', question_id=comment_id)
     else:
         comment.delete()
-    return redirect('question:detail', id=id)
+    return redirect('question:detail', question_id=comment_id)
 
 
 @login_required(login_url='common:login')
 def comment_create_answer(request, answer_id):
     
-    answer = get_object_or_404(Answer, pk=id)
+    answer = get_object_or_404(Answer, pk=answer_id)
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -215,7 +215,7 @@ def comment_create_answer(request, answer_id):
             comment.create_date = timezone.now()
             comment.answer = answer
             comment.save()
-            return redirect('question:detail', id=id)
+            return redirect('question:detail', question_id=answer_id)
     else:
         form = CommentForm()
     context = {'form': form}
@@ -223,12 +223,12 @@ def comment_create_answer(request, answer_id):
 
 
 @login_required(login_url='common:login')
-def comment_modify_answer(request, comment_id):
+def comment_edit_answer(request, comment_id):
    
-    comment = get_object_or_404(Comment, pk=id)
+    comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.writer:
         messages.error(request, '댓글수정권한이 없습니다')
-        return redirect('question:detail', id=id)
+        return redirect('question:detail', question_id=comment_id)
 
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
@@ -237,7 +237,7 @@ def comment_modify_answer(request, comment_id):
             comment.writer = request.user
             comment.modify_date = timezone.now()
             comment.save()
-            return redirect('question:detail', id=id)
+            return redirect('question:detail', question_id=comment_id)
     else:
         form = CommentForm(instance=comment)
     context = {'form': form}
@@ -247,13 +247,13 @@ def comment_modify_answer(request, comment_id):
 @login_required(login_url='common:login')
 def comment_delete_answer(request, comment_id):
    
-    comment = get_object_or_404(Comment, pk=id)
+    comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.writer:
         messages.error(request, '댓글삭제권한이 없습니다')
-        return redirect('question:detail', id=id)
+        return redirect('question:detail', question_id=comment_id)
     else:
         comment.delete()
-    return redirect('question:detail', id=id)
+    return redirect('question:detail', question_id=comment_id)
 
 
 
